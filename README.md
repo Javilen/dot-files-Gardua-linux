@@ -1,5 +1,5 @@
 # dot-files-Gardua-linux
-Configuration of both Alarcitty and Qtile.
+Configuration of my laptop.
 
 Add these files to ~/.confg
 
