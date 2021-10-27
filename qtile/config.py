@@ -1,10 +1,20 @@
+#      _             _ _
+#     | | __ ___   _(_) | ___ _ __
+#  _  | |/ _` \ \ / / | |/ _ \ '_ \
+# | |_| | (_| |\ V /| | |  __/ | | |
+#  \___/ \__,_| \_/ |_|_|\___|_| |_|
+#Author: J_Deas
+#Date: 10/17/2021
+
 import os
 import re
 import socket
 import subprocess
-from libqtile.config import Drag, Key, Screen, Group, Drag, Click, Rule
-from libqtile.command import lazy
+from typing import List  # noqa: F401
 from libqtile import layout, bar, widget, hook, qtile
+from libqtile.config import Click, Drag, Group, Key, Match, Screen, Rule
+from libqtile.command import lazy
+
 from libqtile.widget import Spacer
 
 #mod4 or mod = super key
@@ -53,7 +63,8 @@ keys = [
     #Key([mod], "r", lazy.spawn("dmenu_run -i -nb '#191919' -nf '#fea63c' -sb '#fea63c' -sf '#191919' -fn 'NotoMonoRegular:bold:pixelsize=14'")),
     Key([mod], "r", lazy.spawn("dmenu_run -i -nb '#434c5e' -nf '#c678dd' -sb '#c678dd' -sf '#434c5e' -fn 'NotoMonoRegular:bold:pixelsize=14'")),
     Key([mod, "shift"], "d", lazy.spawn(home + '/.config/qtile/scripts/dmenu.sh')),
-    Key([mod, "shift"], "q", lazy.window.kill()),
+    #Key([mod, "shift"], "q", lazy.window.kill()),
+    Key([mod, "shift"], "q", lazy.spawn(home + '/.config/rofi/qtilepowermenu.sh')),
     Key([mod, "shift"], "r", lazy.restart()),
     Key([mod, "control"], "r", lazy.restart()),
     Key([mod, "shift"], "x", lazy.shutdown()),
@@ -212,11 +223,12 @@ groups = []
 
 # FOR QWERTY KEYBOARDS
 group_names = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0",]
-#group_names = ["1", "2", "3", "4", "5",]
+#group_names = ["1", "2", "3", "4", "5","6","7",]
 #group_names = ["", "", "", "", "", "", "", "", "", "",]
 # FOR AZERTY KEYBOARDS
 #group_names = ["ampersand", "eacute", "quotedbl", "apostrophe", "parenleft", "section", "egrave", "exclam", "ccedilla", "agrave",]
 
+#group_labels = ["1", "2", "3", "4", "5","6","7",]
 group_labels = ["1 ", "2 ", "3 ", "4 ", "5 ", "6 ", "7 ", "8 ", "9 ", "0",]
 #group_labels = ["", "", "", "", "", "", "", "", "", "",]
 #group_labels = ["", "", "", "", "",]
@@ -264,8 +276,8 @@ layout_theme = init_layout_theme()
 
 
 layouts = [
-    layout.MonadTall(margin=16, border_width=2, border_focus="#ff00ff", border_normal="#f4c2c2"),
-    layout.MonadWide(margin=16, border_width=2, border_focus="#ff00ff", border_normal="#f4c2c2"),
+    layout.MonadTall(margin=12, border_width=2, border_focus="#ff00ff", border_normal="#f4c2c2"), # margin = 16
+    layout.MonadWide(margin=12, border_width=2, border_focus="#ff00ff", border_normal="#f4c2c2"),
     #layout.Matrix(**layout_theme),
     #layout.Bsp(**layout_theme),
     layout.Floating(**layout_theme),
@@ -375,17 +387,18 @@ def init_widgets_list():
             urgent_border=colors[16], #[16]
             this_current_screen_border=colors[20], #[20]
             this_screen_border=colors[17],  #[17]
-            other_current_screen_border=colors[13], #[13]
+            other_current_screen_border=colors[24], #[13]
             other_screen_border=colors[17], #[17]
             disable_drag=True
 
 
                    
                         ),
-                widget.TaskList(
+                
+               widget.TaskList(
                     highlight_method = 'border', # or block
                     icon_size=17,
-                    max_title_width=150,
+                    max_title_width=300, #150
                     rounded=True,
                     padding_x=0,
                     padding_y=0,
@@ -398,7 +411,7 @@ def init_widgets_list():
                     txt_minimized='>_ ',
                     borderwidth = 1,
                     background=colors[10], #[20]
-                    #unfocused_border = 'border'
+                   # unfocused_border = 'border'
                 ),
 
 #               widget.TextBox(
@@ -422,6 +435,7 @@ def init_widgets_list():
                       foreground = colors[5],
                       background = colors[3]
                         ),
+
                 sep2(), 
 #               widget.TextBox(
 #                       text = '',
@@ -431,16 +445,16 @@ def init_widgets_list():
 #                       fontsize = 27
 #                       ),
 
-                widget.Net(
-                         font="Noto Sans",
-                         fontsize=12,
-                        # Here enter your network name
-                         interface=["wlp6s0"],
-                         format = '{down} ↓↑ {up}',
-                         foreground=colors[5],
-                         background=colors[19],
-                         padding = 0,
-                         ),
+#                widget.Net(
+#                         #font="Noto Sans",
+#                         #fontsize=12,
+#                        # Here enter your network name
+#                         interface='jadsys'       #["wlp6s0"],
+#                         format = '{down} ↓↑ {up}',
+#                         foreground=colors[5],
+#                         background=colors[19],
+#                         padding = 5,
+#                         ),
 #                widget.TextBox(
 #                       text = '',
 #                       background = colors[9],
@@ -506,7 +520,9 @@ def init_widgets_list():
                         foreground = colors[9],
                         background = colors[23],
                         fontsize = 12,
-                        format= "%m-%d-%Y %I:%M %p"         #"%Y-%m-%d %H:%M"
+                        format= "%a, %m/%d %I:%M %p",         #"%Y-%m-%d %H:%M"
+                        #mouse_callbacks = {'Button1': lambda : qtile.cmd_spawn("sh ~/.config/qtile/scripts/gcalcli.sh")}, 
+                        mouse_callbacks = {'Button1': lambda : qtile.cmd_spawn(myTerm + ' --hold -e cal -m')},
                         ),
 #               widget.PulseVolume(
 #                        foreground = colors[5],
@@ -531,7 +547,7 @@ def init_widgets_list():
 #                       fontsize = 37
 #                       ),
 
-                sep2(),
+                sep2(), #trayedit
                widget.Systray(
                        background=colors[10], #24
                        icon_size=20,
@@ -642,39 +658,41 @@ def set_floating(window):
 floating_types = ["notification", "toolbar", "splash", "dialog"]
 
 
-follow_mouse_focus = False
-bring_front_click = False
+follow_mouse_focus = True
+bring_front_click = False 
 cursor_warp = False
 floating_layout = layout.Floating(float_rules=[
+    *layout.Floating.default_float_rules,
+    Match(wm_class='confirm'),
+    Match(wm_class='dialog'),
+    Match(wm_class='download'),
+    Match(wm_class='error'),
+    Match(wm_class='file_progress'),
+    Match(wm_class='notification'),
+    Match(wm_class='splash'),
+    Match(wm_class='toolbar'),
+    Match(wm_class='confirmreset'),
+    Match(wm_class='makebranch'),
+    Match(wm_class='maketag'),
+    Match(wm_class='Arandr'),
+    Match(wm_class='feh'),
+    Match(wm_class='Galculator'),
+    Match(title='branchdialog'),
+    Match(title='Open File'),
+    Match(title='pinentry'),
+    Match(wm_class='ssh-askpass'),
+    Match(wm_class='lxpolkit'),
+    Match(wm_class='Lxpolkit'),
+    Match(wm_class='yad'),
+    Match(wm_class='Yad'),
+    Match(wm_class='Cairo-dock'),
+    Match(wm_class='cairo-dock'),
+    Match(wm_class='Steam'),
+    Match(wm_class='electron')
     # use xprog to get class and file info for a particular
-    #application.
-    {'wmclass': 'confirm'},
-    {'wmclass': 'dialog'},
-    {'wmclass': 'download'},
-    {'wmclass': 'error'},
-    {'wmclass': 'file_progress'},
-    {'wmclass': 'notification'},
-    {'wmclass': 'splash'},
-    {'wmclass': 'toolbar'},
-    {'wmclass': 'confirmreset'},
-    {'wmclass': 'makebranch'},
-    {'wmclass': 'maketag'},
-    {'wmclass': 'Arandr'},
-    {'wmclass': 'feh'},
-    {'wmclass': 'Galculator'},
-    {'wname': 'branchdialog'},
-    {'wname': 'Open File'},
-    {'wname': 'pinentry'},
-    {'wmclass': 'ssh-askpass'},
-    {'wmclass': 'lxpolkit'},
-    {'wmclass': 'Lxpolkit'},
-    {'wmclass': 'yad'},
-    {'wmclass': 'Steam'},
-    {'wmclass': 'electron'},
-
 ],  fullscreen_border_width = 0, border_width = 0)
 auto_fullscreen = True
 
-focus_on_window_activation = "focus" # or smart
+focus_on_window_activation = "focus" # or smart focus
 
-wmname = "FARTS"  #"LG3D"
+wmname = "LG3D"  # do not rename or matlab will take a dump
